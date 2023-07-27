@@ -1,0 +1,40 @@
+<!--
+ * @describe: 描述
+ * @Author: superDragon
+ * @Date: 2019-09-10 15:39:31
+ * @LastEditors: superDragon
+ * @LastEditTime: 2019-10-18 11:21:37
+ -->
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>encode</title>
+  </head>
+  <script>
+    // 接受父页面发来的信息
+    window.addEventListener('message', function(event) {
+      var data = event.data
+      try {
+        // console.log('data.cmd', data.cmd)
+        // console.log('data.code', data.code)
+        // console.log('data.params', data.params)
+        if (data && data.params) {
+          let params = data.cmd === 'returnJson' ? data.params : data.params
+          let cmd = data.cmd === 'returnShapeData' ? `shapeData(${params})` : (data.cmd === 'returnJson' ? `raw2Protocol(${params})` : `protocol2Raw(${params})`)
+          let result = new Function(`${data.code};return ${cmd};`)()
+          window.parent.postMessage(
+            {
+              cmd: 'return',
+              params: data.cmd === 'returnJson' || data.cmd === 'returnShapeData' ? JSON.stringify(result, null, 2) : result
+            },
+            '*'
+          )
+        }
+      } catch (error) {
+        alert(error)
+      }
+    })
+  </script>
+  <body></body>
+</html>
